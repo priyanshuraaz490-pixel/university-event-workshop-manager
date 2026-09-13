@@ -40,7 +40,7 @@ export const FacultyDashboardView: React.FC<FacultyDashboardViewProps> = ({
   // Sample attendee roster state for the active event
   const [rosterAttendees, setRosterAttendees] = useState<Record<string, Attendee[]>>({
     'evt-1': [
-      { id: 'att-1', name: 'Alex Rivera', email: 'alex.rivera@university.edu', studentId: 'UE-84920', department: 'Computer Science', registeredAt: '2026-09-10 14:32', checkedIn: true, checkedInAt: '10:02 AM' },
+      { id: 'att-1', name: 'Priyanshu', email: 'priyanshu@university.edu', studentId: 'UE-84920', department: 'Computer Science', registeredAt: '2026-09-10 14:32', checkedIn: true, checkedInAt: '10:02 AM' },
       { id: 'att-2', name: 'Marcus Sterling', email: 'm.sterling@university.edu', studentId: 'UE-82103', department: 'Data Science', registeredAt: '2026-09-11 09:12', checkedIn: false },
       { id: 'att-3', name: 'Chloe Zhao', email: 'chloe.zhao@university.edu', studentId: 'UE-89412', department: 'Software Engineering', registeredAt: '2026-09-11 11:45', checkedIn: true, checkedInAt: '09:58 AM' },
       { id: 'att-4', name: 'Devon Vance', email: 'devon.v@university.edu', studentId: 'UE-79811', department: 'Computer Science', registeredAt: '2026-09-12 16:20', checkedIn: false },

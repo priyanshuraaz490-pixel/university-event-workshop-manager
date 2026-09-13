@@ -46,7 +46,14 @@ export default function App() {
     const saved = localStorage.getItem('unievent_bookings');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.map((b: Booking) => ({
+            ...b,
+            studentName: b.studentName === 'Alex Rivera' ? 'Priyanshu' : (b.studentName || 'Priyanshu'),
+            studentEmail: b.studentEmail === 'alex.rivera@university.edu' ? 'priyanshu@university.edu' : b.studentEmail
+          }));
+        }
       } catch (e) {
         console.error('Failed to parse saved bookings:', e);
       }

@@ -22,7 +22,12 @@ export const authService = {
     const saved = localStorage.getItem(USER_KEY);
     if (!saved) return null;
     try {
-      return JSON.parse(saved);
+      const user = JSON.parse(saved);
+      if (user && (user.name === 'Alex Rivera' || (user.id === 'usr-student-1' && user.name !== 'Priyanshu'))) {
+        user.name = 'Priyanshu';
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+      }
+      return user;
     } catch {
       return null;
     }

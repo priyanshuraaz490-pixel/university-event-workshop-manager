@@ -307,7 +307,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-950 font-bold transition-all text-center cursor-pointer"
               >
                 <span className="block text-[10px] text-emerald-600 uppercase font-mono">Student</span>
-                <span className="truncate block">Alex R.</span>
+                <span className="truncate block">Priyanshu</span>
               </button>
 
               <button

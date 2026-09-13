@@ -47,7 +47,7 @@ const users: StoredUser[] = [
   {
     id: 'usr-student-1',
     email: 'student@university.edu',
-    name: 'Alex Rivera',
+    name: 'Priyanshu',
     passwordHash: bcrypt.hashSync('Student@2026', 10),
     role: 'student',
     department: 'Computer Science',
@@ -279,7 +279,10 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-    const user = users.find(u => u.email.toLowerCase() === normalizedEmail);
+    const user = users.find(u => 
+      u.email.toLowerCase() === normalizedEmail ||
+      (u.id === 'usr-student-1' && (normalizedEmail === 'priyanshu@university.edu' || normalizedEmail === 'student@university.edu'))
+    );
 
     if (!user) {
       logAudit(normalizedEmail, 'unknown', 'LOGIN_FAILED_USER_NOT_FOUND', '/api/auth/login', 'DENIED', ip);
@@ -327,7 +330,7 @@ app.get('/api/auth/demo-credentials', (req, res) => {
         role: 'student',
         email: 'student@university.edu',
         password: 'Student@2026',
-        name: 'Alex Rivera',
+        name: 'Priyanshu',
         description: 'Student with active workshop bookings and activity credits'
       },
       {

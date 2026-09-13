@@ -327,14 +327,14 @@ export const INITIAL_BOOKINGS: Booking[] = [
     eventVenue: 'Turing Computer Science Building, Lab 402',
     eventFormat: 'In-Person',
     coverImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80',
-    studentName: 'Alex Rivera',
-    studentEmail: 'alex.rivera@university.edu',
+    studentName: 'Priyanshu',
+    studentEmail: 'priyanshu@university.edu',
     studentId: 'UE-84920',
     department: 'Computer Science',
     yearOfStudy: 'Junior (3rd Year)',
     bookingDate: '2026-09-10 14:32',
     status: 'Confirmed',
-    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=UNIEVENT-TKT-8849-2026-ALEX-RIVERA-EVT1',
+    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=UNIEVENT-TKT-8849-2026-PRIYANSHU-EVT1',
     specialRequirements: 'Wheelchair accessible desk requested'
   },
   {
@@ -348,20 +348,20 @@ export const INITIAL_BOOKINGS: Booking[] = [
     eventVenue: 'Campus Innovation Center & Grand Atrium',
     eventFormat: 'Hybrid',
     coverImage: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=80',
-    studentName: 'Alex Rivera',
-    studentEmail: 'alex.rivera@university.edu',
+    studentName: 'Priyanshu',
+    studentEmail: 'priyanshu@university.edu',
     studentId: 'UE-84920',
     department: 'Computer Science',
     yearOfStudy: 'Junior (3rd Year)',
     bookingDate: '2026-09-11 09:15',
     status: 'Confirmed',
-    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=UNIEVENT-TKT-9104-2026-ALEX-RIVERA-EVT2'
+    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=UNIEVENT-TKT-9104-2026-PRIYANSHU-EVT2'
   }
 ];
 
 export const CURRENT_STUDENT = {
-  name: 'Alex Rivera',
-  email: 'alex.rivera@university.edu',
+  name: 'Priyanshu',
+  email: 'priyanshu@university.edu',
   studentId: 'UE-84920',
   department: 'Computer Science',
   yearOfStudy: 'Junior (3rd Year)',
