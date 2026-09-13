@@ -95,3 +95,35 @@ export interface NotificationItem {
   read: boolean;
   type: 'info' | 'success' | 'warning';
 }
+
+export type UserRole = 'student' | 'faculty' | 'admin';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  department: string;
+  studentId?: string;
+  facultyId?: string;
+  title?: string;
+  avatar: string;
+  academicCredits?: number;
+  yearOfStudy?: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  token: string;
+}
+
+export interface AuditLog {
+  id: string;
+  timestamp: string;
+  userEmail: string;
+  userRole: UserRole;
+  action: string;
+  resource: string;
+  status: 'SUCCESS' | 'DENIED' | 'FLAGGED';
+  ipAddress?: string;
+}

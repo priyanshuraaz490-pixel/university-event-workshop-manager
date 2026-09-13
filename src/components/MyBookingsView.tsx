@@ -13,24 +13,67 @@ import {
   ExternalLink,
   GraduationCap
 } from 'lucide-react';
-import { Booking } from '../types';
+import { Booking, User } from '../types';
 import { CURRENT_STUDENT } from '../data/initialEvents';
 
 interface MyBookingsViewProps {
   bookings: Booking[];
+  currentUser: User | null;
   onViewTicket: (booking: Booking) => void;
   onCancelBooking: (bookingId: string) => void;
   onGoToDiscover: () => void;
+  onOpenLogin: (role?: 'student' | 'faculty' | 'admin') => void;
 }
 
 export const MyBookingsView: React.FC<MyBookingsViewProps> = ({
   bookings,
+  currentUser,
   onViewTicket,
   onCancelBooking,
-  onGoToDiscover
+  onGoToDiscover,
+  onOpenLogin
 }) => {
   const [filterTab, setFilterTab] = useState<'all' | 'upcoming' | 'past' | 'cancelled'>('upcoming');
   const [cancelModalBooking, setCancelModalBooking] = useState<Booking | null>(null);
+
+  if (!currentUser) {
+    return (
+      <div className="py-12 max-w-lg mx-auto text-center space-y-6 animate-in fade-in duration-200">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
+            <Ticket className="w-8 h-8" />
+          </div>
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+              Student Portal Protected
+            </span>
+            <h2 className="text-2xl font-black text-slate-900">Student Authentication Required</h2>
+            <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
+              Please sign in with your verified university student credentials to access your booked passes, attendance credentials, and workshop credits.
+            </p>
+          </div>
+
+          <button
+            onClick={() => onOpenLogin('student')}
+            id="student-signin-btn"
+            className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer text-xs"
+          >
+            <GraduationCap className="w-4 h-4" />
+            <span>Sign In to Student Portal</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const activeStudent = {
+    name: currentUser.name || CURRENT_STUDENT.name,
+    avatar: currentUser.avatar || CURRENT_STUDENT.avatar,
+    studentId: currentUser.studentId || CURRENT_STUDENT.studentId,
+    department: currentUser.department || CURRENT_STUDENT.department,
+    yearOfStudy: currentUser.yearOfStudy || CURRENT_STUDENT.yearOfStudy,
+    academicCredits: currentUser.academicCredits ?? CURRENT_STUDENT.academicCredits
+  };
 
   const filteredBookings = bookings.filter(b => {
     if (filterTab === 'all') return true;
@@ -49,21 +92,21 @@ export const MyBookingsView: React.FC<MyBookingsViewProps> = ({
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white border border-slate-800 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <img 
-            src={CURRENT_STUDENT.avatar} 
-            alt={CURRENT_STUDENT.name}
+            src={activeStudent.avatar} 
+            alt={activeStudent.name}
             className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-2 ring-indigo-500/50 shadow-md shrink-0"
           />
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-black text-white">
-                {CURRENT_STUDENT.name}
+                {activeStudent.name}
               </h1>
               <span className="bg-indigo-500/30 text-indigo-300 text-[11px] font-bold px-2 py-0.5 rounded-full border border-indigo-400/30">
                 Verified Student
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300">
-              {CURRENT_STUDENT.studentId} • {CURRENT_STUDENT.department} • {CURRENT_STUDENT.yearOfStudy}
+              {activeStudent.studentId} • {activeStudent.department} • {activeStudent.yearOfStudy}
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-400">
               <span className="flex items-center gap-1 text-indigo-300 font-semibold">
@@ -71,7 +114,7 @@ export const MyBookingsView: React.FC<MyBookingsViewProps> = ({
               </span>
               <span>•</span>
               <span className="flex items-center gap-1 text-amber-300 font-semibold">
-                <Award className="w-3.5 h-3.5" /> {CURRENT_STUDENT.academicCredits} Earned Activity Credits
+                <Award className="w-3.5 h-3.5" /> {activeStudent.academicCredits} Earned Activity Credits
               </span>
             </div>
           </div>

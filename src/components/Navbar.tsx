@@ -10,17 +10,24 @@ import {
   CheckCircle2, 
   X,
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  Lock,
+  LogOut,
+  User as UserIcon,
+  Shield,
+  KeyRound
 } from 'lucide-react';
-import { CURRENT_STUDENT } from '../data/initialEvents';
-import { NotificationItem } from '../types';
+import { NotificationItem, User } from '../types';
 
 interface NavbarProps {
-  currentTab: 'discover' | 'workshops' | 'calendar' | 'bookings' | 'faculty';
-  onSelectTab: (tab: 'discover' | 'workshops' | 'calendar' | 'bookings' | 'faculty') => void;
+  currentTab: 'discover' | 'workshops' | 'calendar' | 'bookings' | 'faculty' | 'admin';
+  onSelectTab: (tab: 'discover' | 'workshops' | 'calendar' | 'bookings' | 'faculty' | 'admin') => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
   activeBookingCount: number;
+  currentUser: User | null;
+  onOpenLogin: (role?: 'faculty' | 'admin' | 'student') => void;
+  onLogout: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -28,25 +35,29 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectTab,
   searchQuery,
   onSearchChange,
-  activeBookingCount
+  activeBookingCount,
+  currentUser,
+  onOpenLogin,
+  onLogout
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     {
       id: 'notif-1',
+      title: 'Security Notice',
+      message: 'Server-side Role-Based Access Control (RBAC) active for Faculty & Admin portals.',
+      time: 'Just now',
+      read: false,
+      type: 'info'
+    },
+    {
+      id: 'notif-2',
       title: 'Registration Confirmed',
       message: 'Your seat for Generative AI Masterclass in Lab 402 is secured.',
       time: '2 hours ago',
       read: false,
       type: 'success'
-    },
-    {
-      id: 'notif-2',
-      title: 'New Event Added',
-      message: 'Collegiate 3v3 Esports Tournament registrations are now open!',
-      time: 'Yesterday',
-      read: false,
-      type: 'info'
     },
     {
       id: 'notif-3',
@@ -64,6 +75,9 @@ export const Navbar: React.FC<NavbarProps> = ({
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 
+  const isFaculty = currentUser?.role === 'faculty' || currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
       {/* Top Banner Notice */}
@@ -74,6 +88,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         </span>
         <span className="hidden sm:inline text-indigo-100">
           Campus workshops, faculty research symposia, and student event registrations are live.
+        </span>
+        <span className="hidden md:inline text-xs text-indigo-300">
+          • Role-Based Access Control: Active
         </span>
       </div>
 
@@ -190,6 +207,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
+            {/* Protected Faculty Portal Tab */}
             <button
               id="nav-tab-faculty"
               onClick={() => onSelectTab('faculty')}
@@ -198,9 +216,37 @@ export const Navbar: React.FC<NavbarProps> = ({
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/70 border border-slate-200/80'
               }`}
+              title={isFaculty ? 'Faculty Management Portal' : 'Faculty Access Required (Protected)'}
             >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              {isFaculty ? (
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <Lock className="w-3.5 h-3.5 text-amber-600" />
+              )}
               <span>Faculty Portal</span>
+              {!isFaculty && (
+                <span className="text-[9px] font-bold px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded font-mono">
+                  LOCKED
+                </span>
+              )}
+            </button>
+
+            {/* Protected Admin Portal Tab */}
+            <button
+              id="nav-tab-admin"
+              onClick={() => onSelectTab('admin')}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
+                currentTab === 'admin'
+                  ? 'bg-purple-900 text-white shadow-xs'
+                  : 'text-purple-700 hover:text-purple-900 hover:bg-purple-50 border border-purple-200/60'
+              }`}
+              title={isAdmin ? 'Executive Administration Portal' : 'Admin Access Required (Protected)'}
+            >
+              <Shield className="w-3.5 h-3.5 text-purple-500" />
+              <span>Admin</span>
+              {!isAdmin && (
+                <Lock className="w-3 h-3 text-purple-400" />
+              )}
             </button>
           </nav>
 
@@ -230,7 +276,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   <div className="flex items-center justify-between px-4 pb-2 border-b border-slate-100">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-slate-900">Notifications</span>
+                      <span className="font-bold text-sm text-slate-900">Security & Activity</span>
                       {unreadCount > 0 && (
                         <span className="text-[11px] font-semibold bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded-full">
                           {unreadCount} new
@@ -259,7 +305,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           ) : n.type === 'warning' ? (
                             <Bell className="w-4 h-4 text-amber-500" />
                           ) : (
-                            <Sparkles className="w-4 h-4 text-indigo-500" />
+                            <ShieldCheck className="w-4 h-4 text-indigo-500" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -286,28 +332,134 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
-            {/* User Profile Pill */}
-            <div 
-              onClick={() => onSelectTab('bookings')}
-              className="flex items-center gap-2.5 p-1 pl-2 pr-2.5 rounded-full hover:bg-slate-100 border border-slate-200/70 transition-all cursor-pointer group"
-              id="navbar-profile-btn"
-              title="View student profile & passes"
-            >
-              <img
-                src={CURRENT_STUDENT.avatar}
-                alt={CURRENT_STUDENT.name}
-                className="w-8 h-8 rounded-full object-cover ring-1 ring-indigo-500/40"
-              />
-              <div className="text-left hidden sm:block">
-                <div className="text-xs font-bold text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
-                  {CURRENT_STUDENT.name}
+            {/* User Profile Pill or Sign In Button */}
+            {currentUser ? (
+              <div className="relative">
+                <div 
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="flex items-center gap-2.5 p-1 pl-2 pr-2.5 rounded-full hover:bg-slate-100 border border-slate-200/70 transition-all cursor-pointer group"
+                  id="navbar-profile-btn"
+                  title="View user session details"
+                >
+                  <img
+                    src={currentUser.avatar}
+                    alt={currentUser.name}
+                    className="w-8 h-8 rounded-full object-cover ring-1 ring-indigo-500/40"
+                  />
+                  <div className="text-left hidden sm:block">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors truncate max-w-[120px]">
+                        {currentUser.name}
+                      </span>
+                      <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded ${
+                        currentUser.role === 'admin'
+                          ? 'bg-purple-100 text-purple-800'
+                          : currentUser.role === 'faculty'
+                            ? 'bg-indigo-100 text-indigo-800'
+                            : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {currentUser.role}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-medium leading-none truncate max-w-[140px]">
+                      {currentUser.studentId || currentUser.facultyId || currentUser.email}
+                    </div>
+                  </div>
+                  <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-slate-600" />
                 </div>
-                <div className="text-[10px] text-slate-500 font-medium leading-none">
-                  {CURRENT_STUDENT.studentId} • CS &apos;26
-                </div>
+
+                {/* Profile Dropdown Menu */}
+                {showProfileMenu && (
+                  <div 
+                    id="profile-dropdown-menu"
+                    className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  >
+                    <div className="p-3 border-b border-slate-100">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-bold text-xs text-slate-900">{currentUser.name}</span>
+                        <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-slate-100 text-slate-700">
+                          {currentUser.role}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 font-mono truncate">{currentUser.email}</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">{currentUser.department}</p>
+                    </div>
+
+                    <div className="py-1 text-xs font-medium">
+                      <button
+                        onClick={() => {
+                          setShowProfileMenu(false);
+                          onSelectTab('bookings');
+                        }}
+                        className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 cursor-pointer"
+                      >
+                        <Ticket className="w-4 h-4 text-indigo-600" />
+                        <span>My Passes & Bookings</span>
+                      </button>
+
+                      {currentUser.role === 'faculty' && (
+                        <button
+                          onClick={() => {
+                            setShowProfileMenu(false);
+                            onSelectTab('faculty');
+                          }}
+                          className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 cursor-pointer"
+                        >
+                          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                          <span>Faculty Portal</span>
+                        </button>
+                      )}
+
+                      {currentUser.role === 'admin' && (
+                        <button
+                          onClick={() => {
+                            setShowProfileMenu(false);
+                            onSelectTab('admin');
+                          }}
+                          className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 cursor-pointer"
+                        >
+                          <Shield className="w-4 h-4 text-purple-600" />
+                          <span>Admin Portal</span>
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          setShowProfileMenu(false);
+                          onOpenLogin();
+                        }}
+                        className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-indigo-600 font-bold cursor-pointer"
+                      >
+                        <KeyRound className="w-4 h-4" />
+                        <span>Switch Account / Test Role</span>
+                      </button>
+                    </div>
+
+                    <div className="pt-1 border-t border-slate-100">
+                      <button
+                        onClick={() => {
+                          setShowProfileMenu(false);
+                          onLogout();
+                        }}
+                        className="w-full px-4 py-2 text-left hover:bg-rose-50 flex items-center gap-2 text-rose-600 text-xs font-bold cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-              <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-slate-600" />
-            </div>
+            ) : (
+              <button
+                onClick={() => onOpenLogin()}
+                id="navbar-signin-btn"
+                className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+              >
+                <UserIcon className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </button>
+            )}
 
           </div>
         </div>
@@ -367,8 +519,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                 : 'bg-emerald-50 text-emerald-800 border border-emerald-200/60'
             }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Faculty Portal</span>
+            {isFaculty ? (
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            ) : (
+              <Lock className="w-3.5 h-3.5 text-amber-600" />
+            )}
+            <span>Faculty</span>
+          </button>
+          <button
+            onClick={() => onSelectTab('admin')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap cursor-pointer flex items-center gap-1 ${
+              currentTab === 'admin'
+                ? 'bg-purple-900 text-white'
+                : 'bg-purple-50 text-purple-800 border border-purple-200/60'
+            }`}
+          >
+            <Shield className="w-3.5 h-3.5 text-purple-600" />
+            <span>Admin</span>
           </button>
         </div>
 

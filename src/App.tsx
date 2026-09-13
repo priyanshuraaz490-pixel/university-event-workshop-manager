@@ -5,18 +5,28 @@ import { WorkshopsView } from './components/WorkshopsView';
 import { CalendarView } from './components/CalendarView';
 import { MyBookingsView } from './components/MyBookingsView';
 import { FacultyDashboardView } from './components/FacultyDashboardView';
+import { AdminPortalView } from './components/AdminPortalView';
+import { AccessDeniedView } from './components/AccessDeniedView';
+import { AuthModal } from './components/AuthModal';
 import { EventDetailModal } from './components/EventDetailModal';
 import { RegistrationModal } from './components/RegistrationModal';
 import { DigitalTicketModal } from './components/DigitalTicketModal';
 import { ToastContainer, ToastMessage } from './components/Toast';
 import { INITIAL_EVENTS, INITIAL_BOOKINGS } from './data/initialEvents';
-import { UniEvent, Booking } from './types';
-import { BookOpen, Sparkles, ShieldCheck } from 'lucide-react';
+import { UniEvent, Booking, User } from './types';
+import { authService } from './services/authService';
+import { BookOpen } from 'lucide-react';
 
 export default function App() {
   // Navigation State
-  const [currentTab, setCurrentTab] = useState<'discover' | 'workshops' | 'calendar' | 'bookings' | 'faculty'>('discover');
+  const [currentTab, setCurrentTab] = useState<'discover' | 'workshops' | 'calendar' | 'bookings' | 'faculty' | 'admin'>('discover');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState<User | null>(() => authService.getCurrentUser());
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalRole, setAuthModalRole] = useState<'faculty' | 'admin' | 'student' | undefined>(undefined);
+  const [authModalNotice, setAuthModalNotice] = useState<string | undefined>(undefined);
 
   // Events State with persistence
   const [events, setEvents] = useState<UniEvent[]>(() => {
@@ -77,6 +87,32 @@ export default function App() {
     setToasts(prev => prev.filter(t => t.id !== id));
   };
 
+  // Sync session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const token = authService.getToken();
+      if (!token) return;
+
+      try {
+        const res = await fetch('/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentUser(data.user);
+          authService.setSession(token, data.user);
+        } else {
+          // Token expired or invalid
+          authService.clearSession();
+          setCurrentUser(null);
+        }
+      } catch (err) {
+        console.error('Session sync error:', err);
+      }
+    };
+    checkSession();
+  }, []);
+
   // Sync to LocalStorage
   useEffect(() => {
     localStorage.setItem('unievent_events', JSON.stringify(events));
@@ -95,7 +131,28 @@ export default function App() {
     .filter(b => b.status === 'Confirmed' || b.status === 'Waitlisted')
     .map(b => b.eventId);
 
-  // Handlers
+  // Authentication Handlers
+  const handleOpenLogin = (role?: 'faculty' | 'admin' | 'student', notice?: string) => {
+    setAuthModalRole(role);
+    setAuthModalNotice(notice);
+    setAuthModalOpen(true);
+  };
+
+  const handleLoginSuccess = (user: User) => {
+    setCurrentUser(user);
+    addToast('success', `Signed In as ${user.name}`, `Authenticated with role: ${user.role.toUpperCase()}`);
+  };
+
+  const handleLogout = () => {
+    authService.clearSession();
+    setCurrentUser(null);
+    if (currentTab === 'faculty' || currentTab === 'admin') {
+      setCurrentTab('discover');
+    }
+    addToast('info', 'Signed Out', 'You have been logged out of university services.');
+  };
+
+  // Bookmark Handler
   const handleToggleBookmark = (eventId: string) => {
     setBookmarkedIds(prev => {
       const exists = prev.includes(eventId);
@@ -109,6 +166,7 @@ export default function App() {
     });
   };
 
+  // Event Registration Handlers
   const handleOpenRegisterModal = (event: UniEvent) => {
     if (activeBookedEventIds.includes(event.id)) {
       const existing = bookings.find(b => b.eventId === event.id && b.status === 'Confirmed');
@@ -154,10 +212,8 @@ export default function App() {
       specialRequirements: details.specialRequirements
     };
 
-    // Update bookings
     setBookings(prev => [newBooking, ...prev]);
 
-    // Update event registration count
     setEvents(prev => prev.map(e => {
       if (e.id === event.id) {
         return {
@@ -189,7 +245,6 @@ export default function App() {
       return b;
     }));
 
-    // Free up seat in event
     setEvents(prev => prev.map(e => {
       if (e.id === booking.eventId) {
         return {
@@ -203,7 +258,14 @@ export default function App() {
     addToast('info', 'Registration Cancelled', `Seat for ${booking.eventTitle} has been released.`);
   };
 
-  const handleCreateEvent = (newEventData: Omit<UniEvent, 'id' | 'registeredCount' | 'status'>) => {
+  // Faculty Actions with Server Authorization Check
+  const handleCreateEvent = async (newEventData: Omit<UniEvent, 'id' | 'registeredCount' | 'status'>) => {
+    // Check faculty authorization
+    if (!currentUser || (currentUser.role !== 'faculty' && currentUser.role !== 'admin')) {
+      addToast('error', 'Authorization Denied', 'Only verified faculty or admins can publish workshops.');
+      return;
+    }
+
     const newEvent: UniEvent = {
       ...newEventData,
       id: `evt-${Date.now()}`,
@@ -212,10 +274,15 @@ export default function App() {
     };
 
     setEvents(prev => [newEvent, ...prev]);
-    addToast('success', 'Event Published!', `"${newEvent.title}" is now live on the university calendar.`);
+    addToast('success', 'Workshop Published!', `"${newEvent.title}" is now live on the university calendar.`);
   };
 
   const handleDeleteEvent = (eventId: string) => {
+    if (!currentUser || (currentUser.role !== 'faculty' && currentUser.role !== 'admin')) {
+      addToast('error', 'Authorization Denied', 'Only verified faculty or admins can remove workshops.');
+      return;
+    }
+
     const target = events.find(e => e.id === eventId);
     setEvents(prev => prev.filter(e => e.id !== eventId));
     addToast('info', 'Event Removed', `"${target?.title || 'Event'}" was removed.`);
@@ -228,6 +295,10 @@ export default function App() {
     }
   };
 
+  // Role permissions
+  const isFacultyAuthorized = currentUser?.role === 'faculty' || currentUser?.role === 'admin';
+  const isAdminAuthorized = currentUser?.role === 'admin';
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       
@@ -238,10 +309,13 @@ export default function App() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         activeBookingCount={activeBookedEventIds.length}
+        currentUser={currentUser}
+        onOpenLogin={handleOpenLogin}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12">
         
         {/* Tab 1: Discover Events */}
         {currentTab === 'discover' && (
@@ -281,24 +355,49 @@ export default function App() {
           />
         )}
 
-        {/* Tab 4: My Bookings & Digital Passes */}
+        {/* Tab 4: My Bookings & Digital Passes (Protected Student Portal) */}
         {currentTab === 'bookings' && (
           <MyBookingsView
             bookings={bookings}
+            currentUser={currentUser}
             onViewTicket={(b) => setTicketBooking(b)}
             onCancelBooking={handleCancelBooking}
             onGoToDiscover={() => setCurrentTab('discover')}
+            onOpenLogin={handleOpenLogin}
           />
         )}
 
-        {/* Tab 5: Faculty Dashboard & Roster Manager */}
+        {/* Tab 5: Protected Faculty Dashboard (Requires Faculty or Admin) */}
         {currentTab === 'faculty' && (
-          <FacultyDashboardView
-            events={events}
-            onCreateEvent={handleCreateEvent}
-            onDeleteEvent={handleDeleteEvent}
-            onViewDetails={(ev) => setDetailEvent(ev)}
-          />
+          isFacultyAuthorized ? (
+            <FacultyDashboardView
+              events={events}
+              onCreateEvent={handleCreateEvent}
+              onDeleteEvent={handleDeleteEvent}
+              onViewDetails={(ev) => setDetailEvent(ev)}
+            />
+          ) : (
+            <AccessDeniedView
+              requiredRole="faculty"
+              currentUser={currentUser}
+              onOpenLogin={handleOpenLogin}
+              onGoBack={() => setCurrentTab('discover')}
+            />
+          )
+        )}
+
+        {/* Tab 6: Protected Admin Portal (Requires Admin) */}
+        {currentTab === 'admin' && (
+          isAdminAuthorized ? (
+            <AdminPortalView onNotify={addToast} />
+          ) : (
+            <AccessDeniedView
+              requiredRole="admin"
+              currentUser={currentUser}
+              onOpenLogin={handleOpenLogin}
+              onGoBack={() => setCurrentTab('discover')}
+            />
+          )
         )}
 
       </main>
@@ -314,7 +413,7 @@ export default function App() {
             <span>• University Academic Event & Workshop Manager</span>
           </div>
 
-          <div className="flex items-center gap-4 font-medium">
+          <div className="flex items-center gap-4 font-medium flex-wrap">
             <button 
               onClick={() => setCurrentTab('discover')}
               className="hover:text-indigo-600 transition-colors cursor-pointer"
@@ -341,17 +440,32 @@ export default function App() {
             </button>
             <button 
               onClick={() => setCurrentTab('faculty')}
-              className="hover:text-indigo-600 transition-colors cursor-pointer"
+              className="hover:text-indigo-600 transition-colors cursor-pointer font-bold"
             >
               Faculty Portal
+            </button>
+            <button 
+              onClick={() => setCurrentTab('admin')}
+              className="hover:text-purple-600 transition-colors cursor-pointer font-bold"
+            >
+              Admin Portal
             </button>
           </div>
 
           <p className="text-slate-400">
-            Fall Term 2026 • Campus Accredited
+            Fall Term 2026 • Role-Based Access Control Active
           </p>
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onSuccess={handleLoginSuccess}
+        requiredRole={authModalRole}
+        noticeMessage={authModalNotice}
+      />
 
       {/* Global Modals */}
       {detailEvent && (
@@ -367,6 +481,7 @@ export default function App() {
       {registrationEvent && (
         <RegistrationModal
           event={registrationEvent}
+          currentUser={currentUser}
           onClose={() => setRegistrationEvent(null)}
           onConfirmRegistration={handleConfirmRegistration}
         />

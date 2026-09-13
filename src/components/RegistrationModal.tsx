@@ -9,11 +9,12 @@ import {
   AlertCircle,
   GraduationCap
 } from 'lucide-react';
-import { UniEvent } from '../types';
+import { UniEvent, User } from '../types';
 import { CURRENT_STUDENT } from '../data/initialEvents';
 
 interface RegistrationModalProps {
   event: UniEvent | null;
+  currentUser?: User | null;
   onClose: () => void;
   onConfirmRegistration: (
     event: UniEvent, 
@@ -30,17 +31,18 @@ interface RegistrationModalProps {
 
 export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   event,
+  currentUser,
   onClose,
   onConfirmRegistration
 }) => {
   if (!event) return null;
 
   const [formData, setFormData] = useState({
-    studentName: CURRENT_STUDENT.name,
-    studentEmail: CURRENT_STUDENT.email,
-    studentId: CURRENT_STUDENT.studentId,
-    department: CURRENT_STUDENT.department,
-    yearOfStudy: CURRENT_STUDENT.yearOfStudy,
+    studentName: currentUser?.name || CURRENT_STUDENT.name,
+    studentEmail: currentUser?.email || CURRENT_STUDENT.email,
+    studentId: currentUser?.studentId || CURRENT_STUDENT.studentId,
+    department: currentUser?.department || CURRENT_STUDENT.department,
+    yearOfStudy: currentUser?.yearOfStudy || CURRENT_STUDENT.yearOfStudy,
     specialRequirements: '',
     agreeToCodeOfConduct: true
   });
