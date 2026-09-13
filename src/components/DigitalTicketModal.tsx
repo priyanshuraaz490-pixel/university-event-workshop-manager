@@ -1,0 +1,192 @@
+import React from 'react';
+import { 
+  X, 
+  Calendar, 
+  Clock, 
+  MapPin, 
+  Printer, 
+  Download, 
+  CheckCircle2, 
+  BookOpen, 
+  ShieldCheck,
+  Share2
+} from 'lucide-react';
+import { Booking } from '../types';
+
+interface DigitalTicketModalProps {
+  booking: Booking | null;
+  onClose: () => void;
+}
+
+export const DigitalTicketModal: React.FC<DigitalTicketModalProps> = ({
+  booking,
+  onClose
+}) => {
+  if (!booking) return null;
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <div 
+      id="digital-ticket-modal-overlay"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto"
+    >
+      <div 
+        id="digital-ticket-modal-content"
+        className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden my-auto animate-in zoom-in-95 duration-150"
+      >
+        {/* Top bar with close */}
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            Official University Campus Pass
+          </span>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-200 flex items-center justify-center text-slate-700 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Boarding Pass Ticket Body */}
+        <div className="p-6 space-y-6 print:p-0">
+          
+          {/* Ticket Card Container */}
+          <div className="bg-gradient-to-b from-indigo-900 to-slate-950 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+            {/* Background watermark */}
+            <div className="absolute -right-8 -top-8 w-36 h-36 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+
+            {/* Header: University Crest & Ticket Number */}
+            <div className="flex items-center justify-between border-b border-white/15 pb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <span className="font-extrabold text-sm tracking-tight text-white block">
+                    UniEvent <span className="text-indigo-300 font-normal">Pass</span>
+                  </span>
+                  <span className="text-[9px] uppercase tracking-widest text-indigo-300">
+                    Campus Event System
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <span className="text-[10px] text-slate-400 block font-mono">TICKET ID</span>
+                <span className="text-xs font-mono font-black text-amber-300">
+                  {booking.ticketNumber}
+                </span>
+              </div>
+            </div>
+
+            {/* Event Name & Category */}
+            <div className="py-4 space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-white/10 px-2 py-0.5 rounded">
+                {booking.eventCategory}
+              </span>
+              <h3 className="font-black text-lg text-white leading-snug">
+                {booking.eventTitle}
+              </h3>
+            </div>
+
+            {/* Schedule & Venue Grid */}
+            <div className="grid grid-cols-2 gap-3 py-3 border-t border-b border-white/10 text-xs">
+              <div className="space-y-0.5">
+                <span className="text-[9px] font-mono uppercase text-slate-400">DATE & TIME</span>
+                <p className="font-bold text-white flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-indigo-400" />
+                  {booking.eventDate}
+                </p>
+                <p className="text-slate-300 text-[11px] flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-slate-400" />
+                  {booking.eventTime}
+                </p>
+              </div>
+
+              <div className="space-y-0.5">
+                <span className="text-[9px] font-mono uppercase text-slate-400">VENUE & ROOM</span>
+                <p className="font-bold text-white flex items-center gap-1 truncate">
+                  <MapPin className="w-3 h-3 text-emerald-400 shrink-0" />
+                  {booking.eventFormat}
+                </p>
+                <p className="text-slate-300 text-[11px] truncate">
+                  {booking.eventVenue}
+                </p>
+              </div>
+            </div>
+
+            {/* Attendee Info */}
+            <div className="pt-3 flex items-center justify-between text-xs">
+              <div>
+                <span className="text-[9px] font-mono uppercase text-slate-400 block">STUDENT ATTENDEE</span>
+                <p className="font-bold text-white text-sm">{booking.studentName}</p>
+                <p className="text-[10px] text-indigo-300 font-mono">{booking.studentId} • {booking.department}</p>
+              </div>
+
+              <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Confirmed
+              </span>
+            </div>
+
+            {/* Perforation Cut line */}
+            <div className="relative my-4">
+              <div className="border-b-2 border-dashed border-white/20"></div>
+              <div className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full"></div>
+              <div className="absolute -right-8 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full"></div>
+            </div>
+
+            {/* QR Code & Barcode Verification */}
+            <div className="flex flex-col items-center justify-center space-y-2 pt-1 text-center">
+              <div className="p-2.5 bg-white rounded-xl shadow-md inline-block">
+                <img 
+                  src={booking.qrCodeUrl} 
+                  alt="QR Pass Code"
+                  className="w-36 h-36 object-contain"
+                />
+              </div>
+
+              <div className="space-y-0.5">
+                <span className="text-[10px] text-slate-300 font-mono tracking-widest block">
+                  HASH: {booking.id.toUpperCase()}-UE-VERIFIED-2026
+                </span>
+                <p className="text-[10px] text-indigo-200">
+                  Scan at venue entrance with faculty scanner
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handlePrint}
+              id="print-ticket-btn"
+              className="flex-1 py-2.5 px-4 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Print Ticket</span>
+            </button>
+
+            <button
+              onClick={() => {
+                alert(`Digital ticket #${booking.ticketNumber} saved to student wallet.`);
+              }}
+              id="save-pass-btn"
+              className="flex-1 py-2.5 px-4 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              <span>Save Pass</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  );
+};

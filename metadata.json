@@ -1,0 +1,6 @@
+{
+  "name": "UniEvent - University Event & Workshop Manager",
+  "description": "Academic workshop and campus event platform featuring event discovery, interactive booking, live calendar schedule, digital tickets, and faculty management dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
