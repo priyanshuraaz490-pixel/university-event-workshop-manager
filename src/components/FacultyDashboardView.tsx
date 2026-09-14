@@ -383,7 +383,7 @@ export const FacultyDashboardView: React.FC<FacultyDashboardViewProps> = ({
                 <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search attendee by name, student ID..."
+                  placeholder="Search attendee by name, Registration No...."
                   value={rosterSearch}
                   onChange={(e) => setRosterSearch(e.target.value)}
                   className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
@@ -393,7 +393,7 @@ export const FacultyDashboardView: React.FC<FacultyDashboardViewProps> = ({
               <button
                 onClick={() => {
                   const csvRows = [
-                    ['Name', 'Student ID', 'Email', 'Department', 'Checked In'].join(','),
+                    ['Name', 'Registration No.', 'Email', 'Department', 'Checked In'].join(','),
                     ...currentRoster.map(a => [a.name, a.studentId, a.email, a.department, a.checkedIn ? 'Yes' : 'No'].join(','))
                   ].join('\n');
                   const blob = new Blob([csvRows], { type: 'text/csv' });
@@ -402,6 +402,7 @@ export const FacultyDashboardView: React.FC<FacultyDashboardViewProps> = ({
                   a.href = url;
                   a.download = `roster-${activeRosterEvent.id}.csv`;
                   a.click();
+                  window.URL.revokeObjectURL(url);
                 }}
                 className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center gap-1.5 cursor-pointer"
               >
@@ -416,7 +417,7 @@ export const FacultyDashboardView: React.FC<FacultyDashboardViewProps> = ({
                 <div key={attendee.id} className="p-3 hover:bg-slate-50 rounded-xl flex items-center justify-between gap-4">
                   <div className="space-y-0.5">
                     <p className="font-bold text-xs text-slate-900">{attendee.name}</p>
-                    <p className="text-[11px] text-slate-500">{attendee.studentId} • {attendee.department}</p>
+                    <p className="text-[11px] text-slate-500">Registration No.: {attendee.studentId} • {attendee.department}</p>
                     <p className="text-[10px] text-slate-400">Registered: {attendee.registeredAt}</p>
                   </div>
 

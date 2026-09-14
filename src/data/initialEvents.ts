@@ -221,7 +221,7 @@ export const INITIAL_EVENTS: UniEvent[] = [
     credits: 1,
     isFree: true,
     certificateProvided: false,
-    prerequisites: ['Student ID required', 'Free agents will be matched into teams on-site'],
+    prerequisites: ['Registration No. required', 'Free agents will be matched into teams on-site'],
     materialsProvided: ['Gaming stations & 144Hz monitors provided', 'Energy snacks & drinks', 'Team jerseys for finalists'],
     agenda: [
       { time: '11:00 AM - 11:45 AM', title: 'Team Check-in & Bracket Seeding', description: 'Equipment setup and rule briefing.' },

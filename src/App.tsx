@@ -176,7 +176,7 @@ export default function App() {
   // Event Registration Handlers
   const handleOpenRegisterModal = (event: UniEvent) => {
     if (activeBookedEventIds.includes(event.id)) {
-      const existing = bookings.find(b => b.eventId === event.id && b.status === 'Confirmed');
+      const existing = bookings.find(b => b.eventId === event.id && (b.status === 'Confirmed' || b.status === 'Waitlisted'));
       if (existing) {
         setTicketBooking(existing);
         return;

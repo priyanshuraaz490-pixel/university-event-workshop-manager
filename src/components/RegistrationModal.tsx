@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Calendar, 
@@ -47,11 +47,28 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     agreeToCodeOfConduct: true
   });
 
+  useEffect(() => {
+    if (currentUser) {
+      setFormData(prev => ({
+        ...prev,
+        studentName: currentUser.name || prev.studentName,
+        studentEmail: currentUser.email || prev.studentEmail,
+        studentId: currentUser.studentId || prev.studentId,
+        department: currentUser.department || prev.department,
+        yearOfStudy: currentUser.yearOfStudy || prev.yearOfStudy
+      }));
+    }
+  }, [currentUser]);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.studentId.trim()) {
+      setError('Registration No. is required.');
+      return;
+    }
     if (!formData.agreeToCodeOfConduct) {
       setError('Please acknowledge the university attendance code of conduct.');
       return;
@@ -151,10 +168,11 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-600 block">Student ID Number</label>
+                <label className="font-semibold text-slate-600 block">Registration No.</label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. UE-84920"
                   value={formData.studentId}
                   onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"

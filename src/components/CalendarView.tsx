@@ -153,11 +153,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
+    const url = window.URL.createObjectURL(blob);
+    link.href = url;
     link.setAttribute('download', `UniEvent-Calendar-${monthName.replace(/\s+/g, '-')}.ics`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
   return (

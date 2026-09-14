@@ -70,7 +70,8 @@ export const AdminPortalView: React.FC<AdminPortalViewProps> = ({ onNotify }) =>
     u.name.toLowerCase().includes(searchUser.toLowerCase()) ||
     u.email.toLowerCase().includes(searchUser.toLowerCase()) ||
     u.department.toLowerCase().includes(searchUser.toLowerCase()) ||
-    u.role.toLowerCase().includes(searchUser.toLowerCase())
+    u.role.toLowerCase().includes(searchUser.toLowerCase()) ||
+    (u.studentId && u.studentId.toLowerCase().includes(searchUser.toLowerCase()))
   );
 
   return (
@@ -171,7 +172,7 @@ export const AdminPortalView: React.FC<AdminPortalViewProps> = ({ onNotify }) =>
                 type="text"
                 value={searchUser}
                 onChange={(e) => setSearchUser(e.target.value)}
-                placeholder="Search user name, email, or department..."
+                placeholder="Search user name, Registration No., email, or department..."
                 className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none"
               />
             </div>
@@ -203,7 +204,7 @@ export const AdminPortalView: React.FC<AdminPortalViewProps> = ({ onNotify }) =>
                       <div>
                         <span className="font-bold text-slate-900 block">{u.name}</span>
                         <span className="text-[10px] text-slate-400 font-mono">
-                          {u.studentId || u.facultyId || u.id}
+                          {u.role === 'student' && u.studentId ? `Registration No.: ${u.studentId}` : (u.facultyId ? `Faculty ID: ${u.facultyId}` : (u.studentId || u.id))}
                         </span>
                       </div>
                     </td>

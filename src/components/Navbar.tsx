@@ -362,7 +362,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </span>
                     </div>
                     <div className="text-[10px] text-slate-500 font-medium leading-none truncate max-w-[140px]">
-                      {currentUser.studentId || currentUser.facultyId || currentUser.email}
+                      {currentUser.role === 'student' && currentUser.studentId ? `Reg. No: ${currentUser.studentId}` : (currentUser.studentId || currentUser.facultyId || currentUser.email)}
                     </div>
                   </div>
                   <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-slate-600" />
@@ -382,6 +382,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-500 font-mono truncate">{currentUser.email}</p>
+                      {currentUser.role === 'student' && currentUser.studentId && (
+                        <p className="text-[11px] text-indigo-600 font-medium mt-0.5">Registration No.: {currentUser.studentId}</p>
+                      )}
                       <p className="text-[11px] text-slate-500 mt-0.5">{currentUser.department}</p>
                     </div>
 

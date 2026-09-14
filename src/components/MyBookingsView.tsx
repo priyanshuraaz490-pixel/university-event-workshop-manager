@@ -106,7 +106,7 @@ export const MyBookingsView: React.FC<MyBookingsViewProps> = ({
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300">
-              {activeStudent.studentId} • {activeStudent.department} • {activeStudent.yearOfStudy}
+              Registration No.: {activeStudent.studentId} • {activeStudent.department} • {activeStudent.yearOfStudy}
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-400">
               <span className="flex items-center gap-1 text-indigo-300 font-semibold">
@@ -250,7 +250,7 @@ export const MyBookingsView: React.FC<MyBookingsViewProps> = ({
 
                     <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                       <span>Registered to: <strong className="text-slate-700">{booking.studentName}</strong></span>
-                      <span className="font-mono text-[11px]">{booking.studentId}</span>
+                      <span className="font-mono text-[11px]">Registration No.: {booking.studentId}</span>
                     </div>
 
                     {booking.specialRequirements && (

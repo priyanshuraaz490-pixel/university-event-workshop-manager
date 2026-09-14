@@ -222,7 +222,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   <div>
                     <label className="block font-semibold text-slate-700 mb-1">
-                      {role === 'faculty' ? 'Faculty ID' : 'Student ID'}
+                      {role === 'faculty' ? 'Faculty ID' : 'Registration No.'}
                     </label>
                     <input
                       type="text"
