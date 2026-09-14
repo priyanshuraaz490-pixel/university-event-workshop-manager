@@ -139,7 +139,7 @@ export const MyBookingsView: React.FC<MyBookingsViewProps> = ({
                 : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
-            Upcoming Passes ({bookings.filter(b => b.status === 'Confirmed').length})
+            Upcoming Passes ({bookings.filter(b => b.status === 'Confirmed' || b.status === 'Waitlisted').length})
           </button>
 
           <button
